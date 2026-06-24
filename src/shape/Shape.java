@@ -33,11 +33,11 @@ public abstract class Shape implements Serializable {
     }
 
     protected Color getFillColor() {
-        return new Color(fillR, fillG, fillB, fillA);
+        return Color.color(fillR, fillG, fillB, fillA);
     }
 
     protected Color getLineColor() {
-        return new Color(lineR, lineG, lineB, lineA);
+        return Color.color(lineR, lineG, lineB, lineA);
     }
 
     public void setCenterXY(double cx, double cy) {
