@@ -3,12 +3,11 @@ package shape;
 import javafx.scene.canvas.GraphicsContext;
 
 public class Rectangle extends Shape {
-    private static final long serialVersionUID = 1L;
     private double originX, originY;
     private double width, height;
 
-    public Rectangle() {
-        super();
+    public Rectangle(GraphicsContext gc) {
+        super(gc);
         width = height = 0;
     }
 
@@ -23,13 +22,13 @@ public class Rectangle extends Shape {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void draw() {
         gc.setFill(getFillColor());
         gc.fillRect(originX, originY, width, height);
 
         // 테두리 추가
         gc.setStroke(getLineColor());
-        gc.setLineWidth(lineWidth);
+        gc.setLineWidth(1);
         gc.strokeRect(originX, originY, width, height);
     }
 

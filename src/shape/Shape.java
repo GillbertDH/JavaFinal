@@ -1,43 +1,29 @@
 package shape;
 
-import java.io.Serializable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public abstract class Shape implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    // 색상을 R, G, B, Opacity로 저장 (직렬화 위해)
-    protected double fillR, fillG, fillB, fillA;
-    protected double lineR, lineG, lineB, lineA;
-    
-    protected double lineWidth = 1.0;
+public abstract class Shape {
+    private Color fillColor;
+    private Color lineColor;
+    protected GraphicsContext gc;
     protected double cx, cy;
 
-    public Shape() {
-        fillR = 1; fillG = 1; fillB = 1; fillA = 1; // Default white fill
-        lineR = 0; lineG = 0; lineB = 0; lineA = 1; // Default black line
+    public Shape(GraphicsContext gc) {
+        this.gc = gc;
     }
 
     public void setColor(Color fColor, Color lColor) {
-        if(fColor != null) {
-            fillR = fColor.getRed(); fillG = fColor.getGreen(); fillB = fColor.getBlue(); fillA = fColor.getOpacity();
-        }
-        if(lColor != null) {
-            lineR = lColor.getRed(); lineG = lColor.getGreen(); lineB = lColor.getBlue(); lineA = lColor.getOpacity();
-        }
-    }
-    
-    public void setLineWidth(double width) {
-        this.lineWidth = width;
+        fillColor = fColor;
+        lineColor = lColor;
     }
 
     protected Color getFillColor() {
-        return Color.color(fillR, fillG, fillB, fillA);
+        return fillColor;
     }
 
     protected Color getLineColor() {
-        return Color.color(lineR, lineG, lineB, lineA);
+        return lineColor;
     }
 
     public void setCenterXY(double cx, double cy) {
@@ -45,7 +31,7 @@ public abstract class Shape implements Serializable {
         this.cy = cy;
     }
 
-    public abstract void draw(GraphicsContext gc);
+    public abstract void draw();
     public abstract boolean isMyRange(double x, double y);
     public abstract void move(double dx, double dy);
 }

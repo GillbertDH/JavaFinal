@@ -3,11 +3,10 @@ package shape;
 import javafx.scene.canvas.GraphicsContext;
 
 public class Circle extends Shape {
-    private static final long serialVersionUID = 1L;
     private double radius;
 
-    public Circle() {
-        super();
+    public Circle(GraphicsContext gc) {
+        super(gc);
     }
 
     public void setRadius(double r) {
@@ -15,12 +14,12 @@ public class Circle extends Shape {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void draw() {
         gc.setFill(getFillColor());
         gc.fillOval(cx - radius, cy - radius, 2 * radius, 2 * radius);
 
         gc.setStroke(getLineColor());
-        gc.setLineWidth(lineWidth);
+        gc.setLineWidth(1);
         gc.strokeOval(cx - radius, cy - radius, 2 * radius, 2 * radius);
     }
 
