@@ -7,7 +7,9 @@ public class ToolManager {
     public static final int DRAW_CIRCLE = 2;
     public static final int MOVE_SHAPE = 3;
     public static final int REMOVE_SHAPE = 4;
-
+    public static final int DRAW_LINE = 5;
+    public static final int DRAW_FREELINE = 6;
+    
     private int currentMode;
     private Color currentColor = Color.BLACK;
     

@@ -6,8 +6,8 @@ public class Rectangle extends Shape {
     private double originX, originY;
     private double width, height;
 
-    public Rectangle(GraphicsContext gc) {
-        super(gc);
+    // ★ 생성자 파라미터 비움
+    public Rectangle() {
         width = height = 0;
     }
 
@@ -21,8 +21,9 @@ public class Rectangle extends Shape {
         height = h;
     }
 
+    // ★ 파라미터로 gc를 받음
     @Override
-    public void draw() {
+    public void draw(GraphicsContext gc) {
         gc.setFill(getFillColor());
         gc.fillRect(originX, originY, width, height);
 

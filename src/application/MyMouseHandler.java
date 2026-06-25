@@ -6,6 +6,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import shape.Circle;
+import shape.FreeLine;
+import shape.Line;
 import shape.Rectangle;
 import shape.Shape;
 
@@ -15,31 +17,19 @@ public class MyMouseHandler implements EventHandler<MouseEvent> {
     private ShapeManager shapeManager;
     private Canvas canvas;
     private double clickedX, clickedY;
-
-    public void setToolManager(ToolManager tm) {
-        toolManager = tm;
-    }
-
-    public void setShapeManager(ShapeManager sm) {
-        shapeManager = sm;
-    }
-
-    public void setCanvas(Canvas cv) {
-        canvas = cv;
-    }
-
-    public void setGC(GraphicsContext gc) {
-        this.gc = gc;
-    }
+    private FreeLine currentFreeLine;
+    
+    public void setToolManager(ToolManager tm) { toolManager = tm; }
+    public void setShapeManager(ShapeManager sm) { shapeManager = sm; }
+    public void setCanvas(Canvas cv) { canvas = cv; }
+    public void setGC(GraphicsContext gc) { this.gc = gc; }
 
     @Override
     public void handle(MouseEvent event) {
-        // 클릭한 지점의 x, y 좌표 가져오기
         double x = event.getX();
         double y = event.getY();
 
         if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-            System.out.println("Mouse Pressed.");
             clickedX = x;
             clickedY = y;
 
@@ -47,68 +37,85 @@ public class MyMouseHandler implements EventHandler<MouseEvent> {
                 Shape selectedShape = shapeManager.findShape(clickedX, clickedY);
                 if (selectedShape != null) {
                     shapeManager.removeShape(selectedShape);
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
                     gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                    shapeManager.drawAll();
+                    shapeManager.drawAll(gc); // ★ 수정됨
                 }
             }
-        } else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-            System.out.println("Mouse Released.");
-
+            else if (toolManager.getCurrentMode() == ToolManager.DRAW_FREELINE) {
+                currentFreeLine = new FreeLine();
+                currentFreeLine.setColor(Color.TRANSPARENT, toolManager.getCurrentColor());
+                currentFreeLine.addPoint(x, y);
+            }
+        }
+        
+        else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+            if (toolManager.getCurrentMode() == ToolManager.DRAW_FREELINE && currentFreeLine != null) {
+                currentFreeLine.addPoint(x, y); // 움직일 때마다 점 추가
+                
+                // 화면 초기화 후 기존 그림 + 지금 그리고 있는 선 실시간 렌더링
+                gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                shapeManager.drawAll(gc);
+                currentFreeLine.draw(gc); 
+            }
+        }
+        
+        else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
             if (toolManager.getCurrentMode() == ToolManager.DRAW_RECT) {
-                double originX, originY;
-                double width, height;
+                double originX, originY, width, height;
 
-                if (clickedX < x) {
-                    originX = clickedX;
-                    width = x - clickedX;
-                } else {
-                    originX = x;
-                    width = clickedX - x;
-                }
+                if (clickedX < x) { originX = clickedX; width = x - clickedX; } 
+                else { originX = x; width = clickedX - x; }
 
-                if (clickedY < y) {
-                    originY = clickedY;
-                    height = y - clickedY;
-                } else {
-                    originY = y;
-                    height = clickedY - y;
-                }
+                if (clickedY < y) { originY = clickedY; height = y - clickedY; } 
+                else { originY = y; height = clickedY - y; }
 
-                Rectangle rect = new Rectangle(gc);
+                Rectangle rect = new Rectangle(); // ★ 수정됨
                 rect.setOriginXY(originX, originY);
                 rect.setWidthHeight(width, height);
+                rect.setColor(toolManager.getCurrentColor(), Color.BLACK);
 
-                Color fColor = toolManager.getCurrentColor();
-                Color lColor = Color.BLACK;
-                rect.setColor(fColor, lColor);
-
-                rect.setCenterXY(originX + width / 2, originY + height / 2);
-                rect.draw();
+                rect.draw(gc); // ★ 수정됨
                 shapeManager.addShape(rect);
 
             } else if (toolManager.getCurrentMode() == ToolManager.DRAW_CIRCLE) {
                 double radius = Math.sqrt((x - clickedX) * (x - clickedX) + (y - clickedY) * (y - clickedY));
-                Circle cir = new Circle(gc);
-
-                Color fColor = toolManager.getCurrentColor();
-                Color lColor = Color.BLACK;
-                cir.setColor(fColor, lColor);
-
+                
+                Circle cir = new Circle(); // ★ 수정됨
+                cir.setColor(toolManager.getCurrentColor(), Color.BLACK);
                 cir.setCenterXY(clickedX, clickedY);
                 cir.setRadius(radius);
-                cir.draw();
+                
+                cir.draw(gc); // ★ 수정됨
                 shapeManager.addShape(cir);
 
-            } else if (toolManager.getCurrentMode() == ToolManager.MOVE_SHAPE) {
-                Shape selectedShape = shapeManager.findShape(clickedX, clickedY);
-                if (selectedShape != null) {
-                    selectedShape.move(x - clickedX, y - clickedY);
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
-                    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                    shapeManager.drawAll();
+            } else if (toolManager.getCurrentMode() == ToolManager.DRAW_LINE) {
+                Line line = new Line(); // ★ 수정됨
+                line.setStartEndXY(clickedX, clickedY, x, y);
+                line.setColor(Color.TRANSPARENT, toolManager.getCurrentColor());
+                
+                line.draw(gc); // ★ 수정됨
+                shapeManager.addShape(line);
+                
+            }
+            
+            else if (toolManager.getCurrentMode() == ToolManager.DRAW_FREELINE) {
+                if (currentFreeLine != null) {
+                    shapeManager.addShape(currentFreeLine); // 창고에 넣으면서 백업(saveState) 됨
+                    currentFreeLine = null; // 초기화
                 }
             }
+            
+            else if (toolManager.getCurrentMode() == ToolManager.MOVE_SHAPE) {
+                Shape selectedShape = shapeManager.findShape(clickedX, clickedY);
+                if (selectedShape != null) {
+                	shapeManager.saveState();
+                    selectedShape.move(x - clickedX, y - clickedY);
+                    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    shapeManager.drawAll(gc); // ★ 수정됨
+                }
+            }
+            
+            
         }
     }
 }

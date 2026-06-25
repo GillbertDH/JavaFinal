@@ -35,11 +35,28 @@ public class MyButtonHandler implements EventHandler<ActionEvent> {
         } else if (btn.getText().compareTo("삭제") == 0) {
             toolManager.setCurrentMode(ToolManager.REMOVE_SHAPE);
         } 
-       
+        else if (btn.getText().compareTo("선") == 0) {
+            toolManager.setCurrentMode(ToolManager.DRAW_LINE);}
         else if (btn.getText().compareTo("전체삭제") == 0) {
             shapeManager.clearAll(); 
             GraphicsContext gc = canvas.getGraphicsContext2D();
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); 
         }
+        
+        else if (btn.getText().compareTo("실행취소") == 0) {
+            shapeManager.undo(); // 과거로 데이터 복원
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            shapeManager.drawAll(gc); // 복원된 데이터로 화면 다시 그리기
+        } 
+        else if (btn.getText().compareTo("다시실행") == 0) {
+            shapeManager.redo(); // 미래로 데이터 복원
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            shapeManager.drawAll(gc);
+        }
+        
+        else if (btn.getText().compareTo("자유곡선") == 0) { // ★ 추가!
+            toolManager.setCurrentMode(ToolManager.DRAW_FREELINE);}
     }
 }

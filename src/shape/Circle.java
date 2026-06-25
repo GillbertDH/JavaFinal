@@ -5,16 +5,17 @@ import javafx.scene.canvas.GraphicsContext;
 public class Circle extends Shape {
     private double radius;
 
-    public Circle(GraphicsContext gc) {
-        super(gc);
+    // ★ 생성자 파라미터 비움
+    public Circle() {
     }
 
     public void setRadius(double r) {
         radius = r;
     }
 
+    // ★ 파라미터로 gc를 받음
     @Override
-    public void draw() {
+    public void draw(GraphicsContext gc) {
         gc.setFill(getFillColor());
         gc.fillOval(cx - radius, cy - radius, 2 * radius, 2 * radius);
 
